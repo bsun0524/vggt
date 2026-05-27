@@ -30,8 +30,8 @@ def get_2d_sincos_pos_embed(embed_dim: int, grid_size: Union[int, Tuple[int, int
         grid_size_h, grid_size_w = grid_size
     else:
         grid_size_h = grid_size_w = grid_size
-    grid_h = torch.arange(grid_size_h, dtype=torch.float)
-    grid_w = torch.arange(grid_size_w, dtype=torch.float)
+    grid_h = torch.arange(grid_size_h, dtype=torch.float32)
+    grid_w = torch.arange(grid_size_w, dtype=torch.float32)
     grid = torch.meshgrid(grid_w, grid_h, indexing="xy")
     grid = torch.stack(grid, dim=0)
     grid = grid.reshape([2, 1, grid_size_h, grid_size_w])
@@ -85,7 +85,7 @@ def get_1d_sincos_pos_embed_from_grid(embed_dim: int, pos: torch.Tensor) -> torc
     emb_cos = torch.cos(out)  # (M, D/2)
 
     emb = torch.cat([emb_sin, emb_cos], dim=1)  # (M, D)
-    return emb[None].float()
+    return emb[None].to(dtype=pos.dtype)
 
 
 def get_2d_embedding(xy: torch.Tensor, C: int, cat_coords: bool = True) -> torch.Tensor:
@@ -105,10 +105,10 @@ def get_2d_embedding(xy: torch.Tensor, C: int, cat_coords: bool = True) -> torch
 
     x = xy[:, :, 0:1]
     y = xy[:, :, 1:2]
-    div_term = (torch.arange(0, C, 2, device=xy.device, dtype=torch.float32) * (1000.0 / C)).reshape(1, 1, int(C / 2))
+    div_term = (torch.arange(0, C, 2, device=xy.device, dtype=xy.dtype) * (1000.0 / C)).reshape(1, 1, int(C / 2))
 
-    pe_x = torch.zeros(B, N, C, device=xy.device, dtype=torch.float32)
-    pe_y = torch.zeros(B, N, C, device=xy.device, dtype=torch.float32)
+    pe_x = torch.zeros(B, N, C, device=xy.device, dtype=xy.dtype)
+    pe_y = torch.zeros(B, N, C, device=xy.device, dtype=xy.dtype)
 
     pe_x[:, :, 0::2] = torch.sin(x * div_term)
     pe_x[:, :, 1::2] = torch.cos(x * div_term)
