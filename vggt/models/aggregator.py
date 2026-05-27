@@ -69,6 +69,7 @@ class Aggregator(nn.Module):
         rope_freq=100,
         init_values=0.01,
         cached_layer_indices: Tuple[int, ...] = (4, 11, 17, 23),
+        fused_attn=True,
     ):
         super().__init__()
 
@@ -89,6 +90,7 @@ class Aggregator(nn.Module):
                     ffn_bias=ffn_bias,
                     init_values=init_values,
                     qk_norm=qk_norm,
+                    fused_attn=fused_attn,
                     rope=self.rope,
                 )
                 for _ in range(depth)
@@ -106,6 +108,7 @@ class Aggregator(nn.Module):
                     ffn_bias=ffn_bias,
                     init_values=init_values,
                     qk_norm=qk_norm,
+                    fused_attn=fused_attn,
                     rope=self.rope,
                 )
                 for _ in range(depth)
